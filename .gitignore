@@ -1,0 +1,6 @@
+build/
+.xmake/
+doc/_build/
+doc/_apidoc/
+compile_commands.json
+*.user
