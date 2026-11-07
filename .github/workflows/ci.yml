@@ -1,0 +1,122 @@
+# jdumper CI（文档门禁 + Windows build & test）
+#
+# 范围：docs（引用门禁 + Sphinx -W + Doxygen WARN_AS_ERROR）+ Windows 下
+# jdserver/jdumper/jdumper-unittest 构建与单测。
+# 依赖：libca/mjbase 经 luiox-repo git 直连包拉取，libjninfra 走项目内联包
+# 定义（xmake.lua 不声明 add_repositories，由 CI/消费方显式注册，见
+# xmake.lua 头注释）；gtest 走 xrepo。JAVA_HOME 由 setup-java 提供。
+
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main", "fix/**", "docs/**"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test-windows:
+    name: build & test (windows)
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK (temurin 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          # setup-java 导出 JAVA_HOME，jdserver/jdumper/jdumper-unittest 的
+          # jni.h/jvmti.h 都从这里取。
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: v3.0.9
+          actions-cache-folder: '.xmake-cache'
+
+      - name: Cache xrepo packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/.xmake/packages
+          key: jdumper-xrepo-windows-x64-xmake309-${{ hashFiles('xmake.lua') }}
+          restore-keys: |
+            jdumper-xrepo-windows-x64-xmake309-
+
+      - name: Register luiox-repo
+        shell: bash
+        run: xmake repo --add luiox-repo https://github.com/luiox/luiox-repo.git
+
+      - name: Configure (with tests)
+        shell: bash
+        run: xmake f -p windows --with_tests=y -y
+
+      - name: Build
+        shell: bash
+        run: |
+          xmake build jdserver
+          xmake build jdumper
+          xmake build jdumper-unittest
+
+      - name: Run unit tests
+        shell: bash
+        run: xmake run jdumper-unittest
+
+  docs:
+    name: docs (引用门禁 + Sphinx + Doxygen)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Sphinx
+        # 钉死本地实测通过的版本：-W 下警告集合随 Sphinx 小版本变，范围安装等于定时炸；升级随文档批次显式改这一行。
+        run: python -m pip install --upgrade "sphinx==9.1.1"
+
+      - name: Reference gate (check_refs)
+        run: python doc/check_refs.py .
+
+      # -E：增量缓存会跳过「回到旧状态」的文件，警告随之消失，等于没门禁。
+      - name: "Build design docs (-W: 警告即失败)"
+        run: sphinx-build -b html -E -W --keep-going doc doc/_build
+
+      - name: Upload site
+        uses: actions/upload-artifact@v4
+        with:
+          name: jdumper-doc-html
+          path: doc/_build
+          retention-days: 14
+
+      # 微观层：Doxygen 只吃头文件 /// 注释，与 RST 站互不干涉。
+      # 版本必须钉死（与本地实测同版）：Doxyfile 的 WARN_* 档随版本增减标签，
+      # 老版本会把「不认识的标签」报成告警，WARN_AS_ERROR 下直接变红。
+      - name: Install Doxygen (pinned 1.18.0)
+        run: |
+          curl -fsSL https://www.doxygen.nl/files/doxygen-1.18.0.linux.bin.tar.gz -o /tmp/dox.tar.gz
+          mkdir -p "$HOME/doxygen"
+          tar xzf /tmp/dox.tar.gz -C "$HOME/doxygen" --strip-components=1
+          test -x "$HOME/doxygen/bin/doxygen"
+          echo "$HOME/doxygen/bin" >> "$GITHUB_PATH"
+
+      # GITHUB_PATH 的追加不回灌当前步，PATH 自本步起生效；版本打印放这里。
+      - name: Build API docs (WARN_AS_ERROR)
+        run: |
+          doxygen --version
+          doxygen doc/Doxyfile
+
+      - name: Upload API site
+        uses: actions/upload-artifact@v4
+        with:
+          name: jdumper-doc-apidoc
+          path: doc/_apidoc/html
+          retention-days: 14
