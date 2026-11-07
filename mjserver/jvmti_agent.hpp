@@ -1,6 +1,6 @@
-/// @defgroup jdserver-jvmti-agent JVMTI agent 生命周期与回调注册
+/// @defgroup mjserver-jvmti-agent JVMTI agent 生命周期与回调注册
 ///
-/// jdserver 的 JVMTI 初始化是 `-agentpath`（Agent_OnLoad）与远程注入
+/// mjserver 的 JVMTI 初始化是 `-agentpath`（Agent_OnLoad）与远程注入
 /// （控制入口）共用的同一条路径：协商 retransform capabilities、注册
 /// ClassFileLoadHook / VMInit、再对已加载类做 retransform sweep。两种入口
 /// 的分工与竞态守卫（isAgentStarted）是本模块的核心契约；三模式（P0/P1/P2）

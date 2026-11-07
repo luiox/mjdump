@@ -31,7 +31,7 @@ void writeClass(const char* name, const char* module, const unsigned char* data,
     auto result = fileSink().write(view);
     if (result.is_err() && !g_config.silent) {
         recordClassWrite(false);
-        CA_LOG_ERROR("[jdserver] writeClass failed: {}", result.unwrap_err().message.c_str());
+        CA_LOG_ERROR("[mjserver] writeClass failed: {}", result.unwrap_err().message.c_str());
     }
     else {
         recordClassWrite(result.is_ok());

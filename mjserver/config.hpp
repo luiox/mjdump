@@ -1,4 +1,4 @@
-/// @defgroup jdserver-config agent 选项解析与运行时配置
+/// @defgroup mjserver-config agent 选项解析与运行时配置
 ///
 /// agent 的全部外部行为开关集中在 DumpConfig：CLI 侧把过滤与输出选项编码成
 /// `key=value,key=value` 选项串（值可 %XX 转义），agent 初始化时一次性解析为
@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-/// @brief Runtime configuration shared by jdserver callbacks.
+/// @brief Runtime configuration shared by mjserver callbacks.
 ///
 /// The agent supports two delivery modes: direct file output for `-agentpath`
 /// and injected smoke usage, and pipe output for the future async writer path.

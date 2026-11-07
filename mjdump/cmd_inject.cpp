@@ -14,14 +14,14 @@
 #include <vector>
 #include "libca/log/log_macros.hpp"
 
-using namespace jdumper;
+using namespace mjdump;
 
 namespace {
 
 void print_usage()
 {
     std::fprintf(stderr,
-                 "Usage: jdumper inject -p <pid> [--dll <path>] [-o <dir>]\n"
+                 "Usage: mjdump inject -p <pid> [--dll <path>] [-o <dir>]\n"
                  "                       [--include <glob>] [--exclude <glob>]\n"
                  "                       [--package <name>] [--class <name>]\n"
                  "                       [--module <name>] [--loader <name>]\n"
@@ -30,7 +30,7 @@ void print_usage()
                  "                       [--group-by none|package|module]\n"
                  "                       [--quiet] [--diagnostic] [--silent]\n"
                  "                       [--sweep-delay-ms <ms>]\n\n"
-                 "Injects jdserver.dll with CreateRemoteThread + LoadLibraryW.\n");
+                 "Injects mjserver.dll with CreateRemoteThread + LoadLibraryW.\n");
 }
 
 std::wstring parse_dll_path(int argc, char* argv[])
@@ -40,7 +40,7 @@ std::wstring parse_dll_path(int argc, char* argv[])
             return widen(argv[i + 1]);
         }
     }
-    return path_next_to_exe(L"jdserver.dll");
+    return path_next_to_exe(L"mjserver.dll");
 }
 
 bool has_jvm_module(DWORD pid)
@@ -186,9 +186,9 @@ DWORD export_rva_from_file(const std::filesystem::path& dll_path, const char* ex
 bool run_loaded_agent_entry(HANDLE process, DWORD_PTR remote_module_base,
                             const std::filesystem::path& dll_path, const std::string& agent_options)
 {
-    const DWORD rva = export_rva_from_file(dll_path, "JdserverRunInjected");
+    const DWORD rva = export_rva_from_file(dll_path, "MjserverRunInjected");
     if (rva == 0) {
-        CA_LOG_ERROR("jdserver control export not found.");
+        CA_LOG_ERROR("mjserver control export not found.");
         return false;
     }
     void* remote_options = nullptr;
@@ -210,7 +210,7 @@ bool run_loaded_agent_entry(HANDLE process, DWORD_PTR remote_module_base,
     auto*  entry  = reinterpret_cast<LPTHREAD_START_ROUTINE>(remote_module_base + rva);
     HANDLE thread = CreateRemoteThread(process, nullptr, 0, entry, remote_options, 0, nullptr);
     if (thread == nullptr) {
-        print_last_error("CreateRemoteThread(JdserverRunInjected)");
+        print_last_error("CreateRemoteThread(MjserverRunInjected)");
         if (remote_options != nullptr) {
             VirtualFreeEx(process, remote_options, 0, MEM_RELEASE);
         }
@@ -224,7 +224,7 @@ bool run_loaded_agent_entry(HANDLE process, DWORD_PTR remote_module_base,
         VirtualFreeEx(process, remote_options, 0, MEM_RELEASE);
     }
     if (exit_code != 0) {
-        CA_LOG_ERROR("jdserver control entry failed: {}", exit_code);
+        CA_LOG_ERROR("mjserver control entry failed: {}", exit_code);
         return false;
     }
     return true;
@@ -410,7 +410,7 @@ std::string parse_agent_options(int argc, char* argv[], const InjectionOptions& 
 
 }   // namespace
 
-namespace jdumper {
+namespace mjdump {
 
 int run_injection(int argc, char* argv[], const InjectionOptions& injection_options)
 {
@@ -437,7 +437,7 @@ int run_injection(int argc, char* argv[], const InjectionOptions& injection_opti
 
     const std::wstring dll_path = parse_dll_path(argc, argv);
     if (dll_path.empty() || !std::filesystem::exists(std::filesystem::path(dll_path))) {
-        CA_LOG_ERROR("jdserver.dll not found. Use --dll <path>.");
+        CA_LOG_ERROR("mjserver.dll not found. Use --dll <path>.");
         return 1;
     }
     const bool agent_already_loaded = module_loaded_by_path(pid, dll_path);
@@ -461,7 +461,7 @@ int run_injection(int argc, char* argv[], const InjectionOptions& injection_opti
     }
 
     if (!process_bitness_matches(process)) {
-        CA_LOG_ERROR("Target process bitness does not match this jdumper build.");
+        CA_LOG_ERROR("Target process bitness does not match this mjdump build.");
         CloseHandle(process);
         return 1;
     }
@@ -474,7 +474,7 @@ int run_injection(int argc, char* argv[], const InjectionOptions& injection_opti
     if (agent_already_loaded) {
         MODULEENTRY32W loaded_agent = {};
         if (!find_module_by_path(pid, dll_path, loaded_agent)) {
-            CA_LOG_ERROR("jdserver module disappeared before control call.");
+            CA_LOG_ERROR("mjserver module disappeared before control call.");
             CloseHandle(process);
             return 1;
         }
@@ -527,7 +527,7 @@ int run_injection(int argc, char* argv[], const InjectionOptions& injection_opti
         return 1;
     }
 
-    // The remote thread only loads the DLL. jdserver's DllMain starts a
+    // The remote thread only loads the DLL. mjserver's DllMain starts a
     // delayed worker that attaches to the already-created JVM.
     // 两段式加载的原因与用法示例见 doc:user-guide-p1。
     HANDLE thread = CreateRemoteThread(process, nullptr, 0, load_library, remote_path, 0, nullptr);
@@ -552,7 +552,7 @@ int run_injection(int argc, char* argv[], const InjectionOptions& injection_opti
 
     MODULEENTRY32W loaded_agent = {};
     if (!find_module_by_path(pid, dll_path, loaded_agent)) {
-        CA_LOG_WARN("jdserver module was loaded but could not be located.");
+        CA_LOG_WARN("mjserver module was loaded but could not be located.");
         VirtualFreeEx(process, remote_path, 0, MEM_RELEASE);
         CloseHandle(process);
         return 1;
@@ -581,13 +581,13 @@ int run_injection(int argc, char* argv[], const InjectionOptions& injection_opti
             }
         }
         else {
-            std::printf("[inject] injected mode uses jdserver defaults\n");
+            std::printf("[inject] injected mode uses mjserver defaults\n");
         }
     }
     return 0;
 }
 
-}   // namespace jdumper
+}   // namespace mjdump
 
 int cmd_inject(int argc, char* argv[])
 {

@@ -13,7 +13,7 @@
 #include <thread>
 #include "libca/log/log_macros.hpp"
 
-using namespace jdumper;
+using namespace mjdump;
 
 int run_external_inspect(int argc, char* argv[], DWORD pid,
                          const std::filesystem::path& output_dir);
@@ -23,14 +23,14 @@ namespace {
 void print_usage()
 {
     std::fprintf(stderr,
-                 "Usage: jdumper inspect -p <pid> [-o <dir>] [filters]\n"
+                 "Usage: mjdump inspect -p <pid> [-o <dir>] [filters]\n"
                  "                        [--module <name>] [--loader <name>]\n"
                  "                        [--limit <n>] [--view all|matched|skipped]\n"
                  "                        [--json] [--filter-preview]\n"
                  "                        [--group-by none|package|module]\n"
                  "                        [--external] [--quiet] [--diagnostic]\n"
                  "                        [--wait-ms <ms>]\n"
-                 "       jdumper classes -p <pid> [-o <dir>] [filters]\n\n"
+                 "       mjdump classes -p <pid> [-o <dir>] [filters]\n\n"
                  "Inspect lists loaded classes and previews filter matches without writing "
                  ".class files.\n");
 }
@@ -49,7 +49,7 @@ std::string timestamp_label()
 std::filesystem::path default_inspect_dir(DWORD pid)
 {
     return std::filesystem::current_path() /
-           ("jdumper-inspect-" + std::to_string(pid) + "-" + timestamp_label());
+           ("mjdump-inspect-" + std::to_string(pid) + "-" + timestamp_label());
 }
 
 std::filesystem::path parse_output_dir_or_default(int argc, char* argv[], DWORD pid)
@@ -213,7 +213,7 @@ int cmd_inspect(int argc, char* argv[])
     const DWORD wait_ms = static_cast<DWORD>(parse_ulong_option(argc, argv, "--wait-ms", 10000));
     const auto  inspect_path = output_dir / "_inspect.json";
     if (!wait_for_inspect_file(inspect_path, wait_ms)) {
-        CA_LOG_WARN("jdumper inspect timed out before preview was written: {}",
+        CA_LOG_WARN("mjdump inspect timed out before preview was written: {}",
                     inspect_path.string().c_str());
         return 1;
     }

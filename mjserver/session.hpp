@@ -1,11 +1,11 @@
-/// @defgroup jdserver-session 会话元数据（_meta.json）
+/// @defgroup mjserver-session 会话元数据（_meta.json）
 ///
 /// 使每次 dump 运行可检查和可重复。agent 在 dumped `.class` 文件旁写入轻量
 /// `_meta.json`，CLI 侧的 status/sessions/sweep 命令都以它为事实来源。
 ///
 /// ## 会话元数据
 ///
-/// `jdserver.dll` 在 agent 会话开始时创建 `<out>/_meta.json`，记录目标 pid、
+/// `mjserver.dll` 在 agent 会话开始时创建 `<out>/_meta.json`，记录目标 pid、
 /// 模式标签、生命周期状态、输出目录、过滤器、class 写入计数、loaded-class sweep
 /// 计数和上次非致命错误。使用 Win32 locking + C file API 而非 `std::filesystem`，
 /// 因为 `Agent_OnLoad` 可能在 HotSpot 启动早期运行。

@@ -14,8 +14,8 @@ namespace {
 void print_usage()
 {
     std::fprintf(stderr,
-                 "Usage: jdumper status [-o] <dir> [--json]\n"
-                 "       jdumper status --json -o <dir>\n");
+                 "Usage: mjdump status [-o] <dir> [--json]\n"
+                 "       mjdump status --json -o <dir>\n");
 }
 
 std::filesystem::path parse_session_dir(int argc, char* argv[])
@@ -224,7 +224,7 @@ int cmd_status(int argc, char* argv[])
     const std::filesystem::path meta_path = session_dir / "_meta.json";
     std::ifstream               in(meta_path, std::ios::binary);
     if (!in) {
-        CA_LOG_ERROR("jdumper session metadata not found: {}", meta_path.string().c_str());
+        CA_LOG_ERROR("mjdump session metadata not found: {}", meta_path.string().c_str());
         return 1;
     }
 

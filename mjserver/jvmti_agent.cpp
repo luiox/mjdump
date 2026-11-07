@@ -230,7 +230,7 @@ static void retransformVmManagementImpl(JNIEnv* env)
         // early bootstrap side effects in normal -agentpath launches.
         jvmtiError error = g_jvmti->RetransformClasses(1, &classes[index]);
         if (error != JVMTI_ERROR_NONE && !g_config.silent) {
-            CA_LOG_ERROR("[jdserver] VMManagementImpl retransform failed: {}",
+            CA_LOG_ERROR("[mjserver] VMManagementImpl retransform failed: {}",
                         static_cast<int>(error));
         }
         break;
@@ -279,7 +279,7 @@ void JNICALL onClassFileLoad(jvmtiEnv* jvmti, JNIEnv* env, jclass class_being_re
         hideAgentInputArguments(
             jvmti, name, class_data_len, class_data, new_class_data_len, new_class_data)) {
         if (!g_config.silent) {
-            CA_LOG_WARN("[jdserver] Java-visible VM arguments hidden");
+            CA_LOG_WARN("[mjserver] Java-visible VM arguments hidden");
         }
     }
 
@@ -295,7 +295,7 @@ void JNICALL onClassFileLoad(jvmtiEnv* jvmti, JNIEnv* env, jclass class_being_re
         !returnIdentityClassBytes(
             jvmti, class_data_len, class_data, new_class_data_len, new_class_data) &&
         !g_config.silent) {
-        CA_LOG_ERROR("[jdserver] cache bait allocation failed for {}", name);
+        CA_LOG_ERROR("[mjserver] cache bait allocation failed for {}", name);
     }
 }
 
@@ -316,7 +316,7 @@ void dumpExistingClasses(JNIEnv* env)
     if (stats.is_err()) {
         recordSessionError(stats.unwrap_err().message.c_str());
         if (!g_config.silent) {
-            CA_LOG_ERROR("[jdserver] dumpExistingClasses failed: {}",
+            CA_LOG_ERROR("[mjserver] dumpExistingClasses failed: {}",
                         stats.unwrap_err().message.c_str());
         }
         return;
@@ -325,7 +325,7 @@ void dumpExistingClasses(JNIEnv* env)
     auto value = stats.unwrap();
     recordSweepStats(value);
     if (!g_config.silent) {
-        CA_LOG_INFO("[jdserver] loaded-class sweep: seen={} matched={} retransformed={} failed={}",
+        CA_LOG_INFO("[mjserver] loaded-class sweep: seen={} matched={} retransformed={} failed={}",
                     value.seen, value.matched, value.retransformed, value.failed);
     }
 }
@@ -379,7 +379,7 @@ jint initAndRun(JavaVM* vm, char* options)
     }
 
     // 诊断统一走 ca::log 门面：agent 在目标 JVM 进程内就地注册 default
-    // target（jdserver 不 dep mjbase，拿不到 initDefaultLogger 的全局安装，
+    // target（mjserver 不 dep mjbase，拿不到 initDefaultLogger 的全局安装，
     // 只能自建 SimpleLogBackend 注册；入口与模式的关系见 doc:design-modes）。
     {
         ca::log::SimpleLogConfig cfg;

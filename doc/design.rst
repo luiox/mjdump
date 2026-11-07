@@ -1,6 +1,6 @@
 .. _design:
 
-jdumper 设计文档
+mjdump 设计文档
 ================
 
 .. _design-goal:
@@ -8,7 +8,7 @@ jdumper 设计文档
 1. 目标
 -------
 
-jdumper 从运行中的 JVM 进程获取运行时 class bytes，并把输出整理成下游字节码
+mjdump 从运行中的 JVM 进程获取运行时 class bytes，并把输出整理成下游字节码
 分析工具可以直接消费的离线材料（目录形态或 pack 后的 JAR）。它不是 debugger，
 也不做反混淆。
 
@@ -25,23 +25,23 @@ jdumper 从运行中的 JVM 进程获取运行时 class bytes，并把输出整�
      - 用途
      - 当前状态
    * - P0
-     - ``-agentpath:jdserver.dll``
+     - ``-agentpath:mjserver.dll``
      - 可靠的启动期 JVMTI dump
      - 基线路径
    * - P0.5
      - agent 字节码补丁
-     - 在 Java management API 视野里隐藏 jdserver 自身的 VM 参数
+     - 在 Java management API 视野里隐藏 mjserver 自身的 VM 参数
      - 已支持，可回退
    * - P1
-     - ``jdumper dump -p <pid>``
-     - 向运行中的 JVM 注入 ``jdserver.dll`` 并经 JVMTI dump
+     - ``mjdump dump -p <pid>``
+     - 向运行中的 JVM 注入 ``mjserver.dll`` 并经 JVMTI dump
      - Windows 上的实用路径，选项低残留传递
    * - P1 inspect
-     - ``jdumper inspect -p <pid>`` / ``classes``
+     - ``mjdump inspect -p <pid>`` / ``classes``
      - 预览已加载类、过滤命中、loader/module 数据与预计输出路径
      - dump 前先看的路径
    * - P2 preflight
-     - ``jdumper dump -p <pid> --preflight``
+     - ``mjdump dump -p <pid> --preflight``
      - 只读 HotSpot 元数据预检，不写 class
      - 诊断路径
    * - P2 external
@@ -62,17 +62,17 @@ class bytes 不可用时必须以稳定错误码失败，而不是假装 dump �
 
    * - 组件
      - 角色
-   * - ``jdumper.exe``
+   * - ``mjdump.exe``
      - CLI：list、inject、dump、inspect/classes、status、pack、sessions、sweep、collect
-   * - ``jdserver.dll``
+   * - ``mjserver.dll``
      - 进程内 JVMTI/JNI agent
    * - libjninfra
      - 共享的 JVMTI/HotSpot/dump 原语（独立库，git 直连包）
    * - ``_meta.json``
      - 会话元数据与稳定失败诊断
 
-微观层锚点：选项键语义见 ``jdserver-config`` 头注，会话元数据的字段与状态机
-见 ``jdserver-session`` 头注。
+微观层锚点：选项键语义见 ``mjserver-config`` 头注，会话元数据的字段与状态机
+见 ``mjserver-session`` 头注。
 
 .. _design-data-flow:
 
@@ -84,7 +84,7 @@ P0/P1：
 .. code-block:: text
 
    target JVM
-     -> jdserver.dll
+     -> mjserver.dll
      -> JVMTI ClassFileLoadHook / loaded-class sweep
      -> class filter
      -> class tree under output dir
@@ -94,10 +94,10 @@ P1 inspect/classes：
 
 .. code-block:: text
 
-   jdumper.exe
+   mjdump.exe
      -> validate normalized filters
      -> send inspect options through remote memory
-     -> jdserver.dll
+     -> mjserver.dll
      -> JVMTI GetLoadedClasses inventory
      -> _inspect.json and optional JSON stdout
 
@@ -105,7 +105,7 @@ P2：
 
 .. code-block:: text
 
-   jdumper.exe
+   mjdump.exe
      -> locate target jvm.dll
      -> copy HotSpot VMStructs snapshot
      -> walk CLDG/SystemDictionary
@@ -138,7 +138,7 @@ CLI 侧对 ``_meta.json`` 的等待终态与 late-complete 契约见 :ref:`cli-p
   或读回失败都以 ``errorCode=post_verify_failed`` 失败，避免误报成功；
 - ``_inspect.json`` 记录预览类行、命中状态、跳过原因、loader/module 数据与
   预计输出路径；
-- ``jdumper pack`` 把目录转换为 JAR，并默认读回校验条目数；
+- ``mjdump pack`` 把目录转换为 JAR，并默认读回校验条目数；
 - 输出目录保持 ``com/example/Foo.class`` 兼容布局，可直接被常规 class 文件
   工具读取。
 
@@ -187,9 +187,9 @@ P2 与注入路径不允许猜测或静默成功。已知失败桶：
 .. code-block:: powershell
 
    xmake f -m release --with_tests=y -y
-   xmake build jdserver
-   xmake build jdumper
-   xmake run jdumper-unittest
+   xmake build mjserver
+   xmake build mjdump
+   xmake run mjdump-unittest
 
 涉及真实 JVM 的 live 行为（P0/P1 dump、参数隐藏、P2 兼容性矩阵）需要真实
 JDK 8/17/21 环境逐项验证；本仓不附带依赖宿主目录结构的 live smoke 脚本，
@@ -202,13 +202,13 @@ JDK 8/17/21 环境逐项验证；本仓不附带依赖宿主目录结构的 live
 
 MVP 是一个可用的 JVM 运行时 class dumper，三条路径边界清晰：
 
-- P0 agent 启动：``-agentpath:jdserver.dll`` 捕获新加载类，并在 VMInit 做
+- P0 agent 启动：``-agentpath:mjserver.dll`` 捕获新加载类，并在 VMInit 做
   已加载类 sweep。
-- P0.5 参数隐藏：Java management API 里不出现 jdserver 自身的
+- P0.5 参数隐藏：Java management API 里不出现 mjserver 自身的
   ``-agentpath`` / ``-agentlib`` 条目，其余 VM 参数保持可见。
-- P1 实用 dump：``jdumper dump -p <pid>`` 注入 ``jdserver.dll``，按
+- P1 实用 dump：``mjdump dump -p <pid>`` 注入 ``mjserver.dll``，按
   package/class/regex 过滤做真实 JVMTI dump。
-- P1 inspect/classes 预览：``jdumper inspect -p <pid>`` 与 ``classes`` 别名
+- P1 inspect/classes 预览：``mjdump inspect -p <pid>`` 与 ``classes`` 别名
   枚举已加载类、loader/module 身份、过滤决策与预计输出路径，不写 ``.class``。
 - P2 外部读取：``--preflight`` 读 HotSpot 元数据并应用过滤；带
   ``--cache-bait`` 的 ``--external`` 在验证过的 HotSpot 8 上可写出 class bytes。
@@ -216,7 +216,7 @@ MVP 是一个可用的 JVM 运行时 class dumper，三条路径边界清晰：
 - no-daemon 会话连续性：``sessions`` 列出已记录会话，
   ``sweep -o <dir> [filters]`` 复用 metadata 向同一输出目录做二次 sweep。
 - 选项低残留传递：CLI 发起的 inject/dump/inspect 经远程内存传选项，不创建
-  ``%TEMP%\jdumper-<pid>.opts``；诊断模式把显式日志做成 opt-in。
+  ``%TEMP%\mjdump-<pid>.opts``；诊断模式把显式日志做成 opt-in。
 
 .. _design-mvp-coverage:
 

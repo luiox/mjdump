@@ -1,6 +1,6 @@
-# jdumper 路线图
+# mjdump 路线图
 
-> jdumper 负责从运行中的 JVM 获取 class bytes，并把输出整理成下游字节码
+> mjdump 负责从运行中的 JVM 获取 class bytes，并把输出整理成下游字节码
 > 分析工具能继续处理的离线材料。
 
 ---
@@ -10,7 +10,7 @@
 获取路径、bytes 来源边界和 P2 兼容性知识见 `doc/` 下的技术 Wiki
 （`doc/index.rst` 的 toctree）；本文只保留产品方向。
 
-jdumper 解决"字节码从哪里来"的问题。它不负责反混淆，也不负责 debugger
+mjdump 解决"字节码从哪里来"的问题。它不负责反混淆，也不负责 debugger
 交互；它的核心价值是稳定拿到运行时 class bytes，并记录足够的 session 元数据。
 
 三条技术路径：
@@ -51,7 +51,7 @@ jdumper 解决"字节码从哪里来"的问题。它不负责反混淆，也不�
 
 ---
 
-## 4. 不在 jdumper 内做的事
+## 4. 不在 mjdump 内做的事
 
 - 不做 bytecode deobf；只获取和整理 class bytes。
 - 不做传统 debugger；断点、step、locals 属于独立工具域。

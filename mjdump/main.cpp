@@ -18,12 +18,12 @@ namespace {
 void print_usage()
 {
     fprintf(stderr,
-            "Usage: jdumper <command> [args]\n\n"
+            "Usage: mjdump <command> [args]\n\n"
             "Commands:\n"
             "  list           List visible java.exe/javaw.exe processes\n"
             "  collect        Start Named Pipe Server and receive class data\n"
-            "  inject  <pid>  Inject jdserver.dll into JVM process (P1)\n"
-            "  dump    <pid>  Dump a JVM by injecting jdserver.dll\n"
+            "  inject  <pid>  Inject mjserver.dll into JVM process (P1)\n"
+            "  dump    <pid>  Dump a JVM by injecting mjserver.dll\n"
             "  inspect <pid>  Preview loaded classes and dump filter matches\n"
             "  classes <pid>  Alias for inspect\n"
             "  sessions      List recorded dump/inspect sessions\n"

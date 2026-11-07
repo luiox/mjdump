@@ -257,7 +257,7 @@ public:
         const uint16_t string_array_class   = cp_patch.addClass("[Ljava/lang/String;");
         const uint16_t agentpath_string     = cp_patch.addString("-agentpath:");
         const uint16_t agentlib_string      = cp_patch.addString("-agentlib:");
-        const uint16_t jdserver_string      = cp_patch.addString("jdserver");
+        const uint16_t mjserver_string      = cp_patch.addString("mjserver");
         const uint16_t stack_map_table_utf8 = cp_patch.addUtf8("StackMapTable");
 
         bool patched = false;
@@ -293,7 +293,7 @@ public:
                                        string_index_of,
                                        agentpath_string,
                                        agentlib_string,
-                                       jdserver_string,
+                                       mjserver_string,
                                        unmodifiable_list,
                                        empty_list,
                                        string_array_class,
@@ -427,7 +427,7 @@ private:
                                    uint16_t get_args0, uint16_t array_list_class,
                                    uint16_t array_list_init, uint16_t array_list_add,
                                    uint16_t string_index_of, uint16_t agentpath_string,
-                                   uint16_t agentlib_string, uint16_t jdserver_string,
+                                   uint16_t agentlib_string, uint16_t mjserver_string,
                                    uint16_t unmodifiable_list, uint16_t empty_list,
                                    uint16_t string_array_class, uint16_t string_class)
     {
@@ -499,7 +499,7 @@ private:
         appendU1(output, 0x19);
         appendU1(output, 0x04);
         appendU1(output, 0x13);
-        appendU2(output, jdserver_string);
+        appendU2(output, mjserver_string);
         appendU1(output, 0xB6);
         appendU2(output, string_index_of);
         appendU1(output, 0x9C);

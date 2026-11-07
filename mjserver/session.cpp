@@ -138,12 +138,12 @@ bool should_flush_meta_locked()
 void write_meta_body(FILE* out)
 {
     std::fputs("{\n", out);
-    std::fputs("  \"tool\": \"jdumper\",\n", out);
+    std::fputs("  \"tool\": \"mjdump\",\n", out);
     std::fprintf(out, "  \"pid\": %lu,\n", g_session.pid);
     std::fputs("  \"mode\": ", out);
     write_json_string(out, g_config.mode);
     std::fputs(",\n", out);
-    std::fputs("  \"agentVersion\": \"jdserver-session-control-v1\",\n", out);
+    std::fputs("  \"agentVersion\": \"mjserver-session-control-v1\",\n", out);
     std::fputs("  \"status\": ", out);
     write_json_string(out, g_session.status);
     std::fputs(",\n", out);

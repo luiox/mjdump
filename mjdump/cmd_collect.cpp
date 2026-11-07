@@ -25,7 +25,7 @@ bool read_exact(HANDLE pipe, void* data, DWORD size)
 void print_usage()
 {
     std::fprintf(stderr,
-                 "Usage: jdumper collect [-o <dir>] [--pipe <name>] [--once]\n\n"
+                 "Usage: mjdump collect [-o <dir>] [--pipe <name>] [--once]\n\n"
                  "Receives records encoded as name_len + name + data_len + bytes.\n");
 }
 
@@ -33,7 +33,7 @@ void print_usage()
 
 int cmd_collect(int argc, char* argv[])
 {
-    const char* pipeName  = "\\\\.\\pipe\\jdumper";
+    const char* pipeName  = "\\\\.\\pipe\\mjdump";
     const char* outputDir = "C:\\JavaClassDump";
     bool        once      = false;
 

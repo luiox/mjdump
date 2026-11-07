@@ -1,4 +1,4 @@
-/// @defgroup jdumper-session-registry 本地 session registry（no-daemon）
+/// @defgroup mjdump-session-registry 本地 session registry（no-daemon）
 ///
 /// CLI 发起的每次 dump/inspect/external 会话按行追加到用户级
 /// sessions.jsonl，`sessions` 命令回放该 registry 并用 `_meta.json`/
@@ -11,10 +11,10 @@
 
 #include <filesystem>
 
-namespace jdumper {
+namespace mjdump {
 
 std::filesystem::path session_registry_path();
 
 void record_session(unsigned long pid, const std::filesystem::path& output_dir, const char* mode);
 
-}   // namespace jdumper
+}   // namespace mjdump

@@ -1,6 +1,6 @@
 .. _user-guide:
 
-jdumper 使用指南
+mjdump 使用指南
 ================
 
 JVM 运行时字节码导出工具，支持 JVMTI Agent（P0）、远程注入（P1）、外部读取
@@ -11,8 +11,8 @@ JVM 运行时字节码导出工具，支持 JVMTI Agent（P0）、远程注入�
 0. 能力一览
 -----------
 
-- **P0 JVMTI agent dump**：``-agentpath:jdserver.dll`` 启动导出全部类文件
-- **P1 远程注入**：``jdumper inject -p <pid>``，CreateRemoteThread 注入
+- **P0 JVMTI agent dump**：``-agentpath:mjserver.dll`` 启动导出全部类文件
+- **P1 远程注入**：``mjdump inject -p <pid>``，CreateRemoteThread 注入
 - **P1 dump 前预览**：``inspect`` / ``classes``，预览 loaded classes 与过滤命中
 - **P2 只读 inventory**：``inspect --external``，HotSpot Klass walk，不注入
 - **P2 外部读取预检**：``dump --preflight``，定位 jvm.dll + 探测 VMStructs
@@ -34,9 +34,9 @@ README。构建与验证入口见下节。
 
    set JAVA_HOME=D:\sdk\java\jdk17
    xmake f -m release --with_tests=y -y
-   xmake build jdserver
-   xmake build jdumper
-   xmake run jdumper-unittest
+   xmake build mjserver
+   xmake build mjdump
+   xmake run mjdump-unittest
 
 需要 Windows x64、JDK 与同位数 C++ 工具链。``JAVA_HOME`` 用于构建期消费
 JNI/JVMTI 头文件。首次配置前需注册家族包仓：
@@ -54,10 +54,10 @@ libjninfra 的版本锁定与占位符说明见 ``xmake/packages/libjninfra.lua`
 
 .. code-block:: bash
 
-   java -agentpath:build\windows\x64\release\jdserver.dll -jar app.jar
+   java -agentpath:build\windows\x64\release\mjserver.dll -jar app.jar
 
    # 带参数
-   java "-agentpath:build\windows\x64\release\jdserver.dll=out=C:\Dump,include=com/example/**" -jar app.jar
+   java "-agentpath:build\windows\x64\release\mjserver.dll=out=C:\Dump,include=com/example/**" -jar app.jar
 
 agent 选项串的完整键位与默认值见 :ref:`user-guide-config`。
 
@@ -68,10 +68,10 @@ agent 选项串的完整键位与默认值见 :ref:`user-guide-config`。
 
 .. code-block:: bash
 
-   jdumper inject -p <pid>
-   jdumper inject -p <pid> --dll build\windows\x64\release\jdserver.dll -o C:\Dump
-   jdumper inject -p <pid> --package com.example
-   jdumper inject -p <pid> --class com.example.Foo
+   mjdump inject -p <pid>
+   mjdump inject -p <pid> --dll build\windows\x64\release\mjserver.dll -o C:\Dump
+   mjdump inject -p <pid> --package com.example
+   mjdump inject -p <pid> --class com.example.Foo
 
 注入的两段式加载（先 LoadLibraryW，再经远程内存调控制入口）见
 :ref:`cli-mode1`。
@@ -83,24 +83,24 @@ agent 选项串的完整键位与默认值见 :ref:`user-guide-config`。
 
 .. code-block:: bash
 
-   jdumper list
-   jdumper inspect -p <pid> --package com.example --limit 100
-   jdumper inspect -p <pid> --class com.example.Foo --module unnamed --json
-   jdumper inspect -p <pid> --external --class com.example.Foo --filter-preview
-   jdumper inspect -p <pid> --package com.example --view matched
-   jdumper dump -p <pid> -o C:\Dump --package com.example
-   jdumper dump -p <pid> -o C:\Dump --package com.example --group-by package
-   jdumper dump -p <pid> -o C:\Dump --class com.example.Foo --group-by module
-   jdumper dump -p <pid> -o C:\Dump --package com.example --quiet
-   jdumper inspect -p <pid> --class com.example.Foo --diagnostic
-   jdumper status -o C:\Dump
-   jdumper status -o C:\Dump --json
-   jdumper sessions
-   jdumper sweep -o C:\Dump --class com.example.NewTarget
-   jdumper pack -i C:\Dump -o C:\Dump\dumped.jar
+   mjdump list
+   mjdump inspect -p <pid> --package com.example --limit 100
+   mjdump inspect -p <pid> --class com.example.Foo --module unnamed --json
+   mjdump inspect -p <pid> --external --class com.example.Foo --filter-preview
+   mjdump inspect -p <pid> --package com.example --view matched
+   mjdump dump -p <pid> -o C:\Dump --package com.example
+   mjdump dump -p <pid> -o C:\Dump --package com.example --group-by package
+   mjdump dump -p <pid> -o C:\Dump --class com.example.Foo --group-by module
+   mjdump dump -p <pid> -o C:\Dump --package com.example --quiet
+   mjdump inspect -p <pid> --class com.example.Foo --diagnostic
+   mjdump status -o C:\Dump
+   mjdump status -o C:\Dump --json
+   mjdump sessions
+   mjdump sweep -o C:\Dump --class com.example.NewTarget
+   mjdump pack -i C:\Dump -o C:\Dump\dumped.jar
 
 ``inspect -p`` 是 dump 前预览路径：CLI 先校验过滤规则，再注入
-``jdserver.dll`` 的轻量 inspect 模式，只枚举 ``GetLoadedClasses``，不触发
+``mjserver.dll`` 的轻量 inspect 模式，只枚举 ``GetLoadedClasses``，不触发
 ``RetransformClasses``，不写 ``.class``。输出位于 ``<out>/_inspect.json``，
 包含 class name、是否 JDK、是否匹配当前过滤、预计 dump 路径和跳过原因。
 ``classes`` 是 ``inspect`` 的别名。JDK 9+ 会记录 Java module 名称；JDK 8
@@ -139,7 +139,7 @@ module``\ 下它们全部进 ``_by_module/unknown/``；``--module`` 精确过滤
 过滤新加载的类，先等类加载完成后再用 ``--module`` 做第二次 dump。
 
 ``dump -p`` 是主力实用路径：CLI 先验证目标是同位数 HotSpot JVM，再通过 P1
-注入 ``jdserver.dll``，等待 ``<out>/_meta.json`` 进入终态。零匹配不是错误；
+注入 ``mjserver.dll``，等待 ``<out>/_meta.json`` 进入终态。零匹配不是错误；
 此时 ``status`` 会显示 ``classWrites: 0`` 和 ``sweepMatched: 0``。每个成功
 写出的 class 还会记录到 ``<out>/_index.json``，包括 class name、相对路径、
 source path、大小、class magic 校验结果、路径安全校验和 SHA-256，供后续
@@ -160,7 +160,7 @@ P1 失败也会尽量写出 ``<out>/_meta.json``，并提供稳定 ``errorCode``
 dump/inspect session、pid 是否还活着、metadata 状态、写出计数和输出目录。
 ``--json`` 输出机器可读列表，``--active`` 只显示仍处于 ``running`` 且 pid
 存活的 session。registry 位于
-``%LOCALAPPDATA%\jdumper\sessions.jsonl``\ ，不会启动 daemon，也不会额外
+``%LOCALAPPDATA%\mjdump\sessions.jsonl``\ ，不会启动 daemon，也不会额外
 触碰目标 JVM。
 
 ``sweep -o <dump-dir> [filters]`` 会重新读取 ``<dump-dir>/_meta.json`` 中的
@@ -168,7 +168,7 @@ pid，并以同一个输出目录再次执行 ``dump -p``。传入新过滤规�
 sweep；不传过滤规则时会复用 metadata 里的过滤条件。已有 ``.class`` 保留，
 ``_index.json`` 会在新 sweep 后重建，因此可以作为轻量增量 dump 使用。agent
 已经加载时，二次 sweep 复用同一个控制入口；初次 dump 和二次 sweep 的配置
-都通过远程内存传递，不再创建 ``%TEMP%\jdumper-<pid>.opts``。
+都通过远程内存传递，不再创建 ``%TEMP%\mjdump-<pid>.opts``。
 
 如果 CLI 等待超时但 agent 已经创建了 running metadata，CLI 不会覆盖
 ``_meta.json``。本次命令失败会记录到 ``<out>/_cli_error.json``，
@@ -185,7 +185,7 @@ dump 目录保持 ``com/example/Foo.class`` 兼容布局，任何能读 class �
 
 .. code-block:: bash
 
-   jdumper pack -i C:\Dump -o C:\Dump\dumped.jar
+   mjdump pack -i C:\Dump -o C:\Dump\dumped.jar
 
 ``pack`` 默认会在写出 JAR 后立刻读回验证资源数量；如果只想做快速打包，
 可以加 ``--no-verify``。
@@ -197,10 +197,10 @@ dump 目录保持 ``com/example/Foo.class`` 兼容布局，任何能读 class �
 
 .. code-block:: bash
 
-   jdumper dump -p <pid> --preflight
-   jdumper dump -p <pid> --preflight --class com.example.Foo
-   jdumper dump -p <pid> --external -o C:\Dump --class com.example.Foo
-   jdumper dump -p <pid> --external --cache-bait -o C:\Dump --class com.example.Foo
+   mjdump dump -p <pid> --preflight
+   mjdump dump -p <pid> --preflight --class com.example.Foo
+   mjdump dump -p <pid> --external -o C:\Dump --class com.example.Foo
+   mjdump dump -p <pid> --external --cache-bait -o C:\Dump --class com.example.Foo
 
 P2 是显式诊断路径，不是默认 dump 路径。当前 MVP 边界：
 
@@ -315,8 +315,8 @@ class bytes 逐字节复制，无字节码改写；该策略在 Corretto 8u352 �
 
 默认模式写必要结果文件并打印成功摘要，但不展开完整 agent options；
 ``--quiet`` 会让 agent 使用 ``silent=true``，并收敛成功路径的 CLI 输出；
-``--diagnostic`` 才写 ``%TEMP%\jdumper-<pid>.log``\ 注入诊断日志，并在 CLI
+``--diagnostic`` 才写 ``%TEMP%\mjdump-<pid>.log``\ 注入诊断日志，并在 CLI
 状态输出中打印原始 options。默认注入路径不写该 log，也不写
-``%TEMP%\jdumper-<pid>.opts``；CLI 会在远程内存中传递 options，并调用
-``jdserver.dll`` 的控制入口。需要排查注入早期、尚未进入控制入口的问题时，
+``%TEMP%\mjdump-<pid>.opts``；CLI 会在远程内存中传递 options，并调用
+``mjserver.dll`` 的控制入口。需要排查注入早期、尚未进入控制入口的问题时，
 也可在目标环境中设置 ``JDUMPER_DIAGNOSTIC_LOG=1`` 后重试。

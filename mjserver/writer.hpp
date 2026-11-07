@@ -1,4 +1,4 @@
-/// @defgroup jdserver-writer class 字节落盘
+/// @defgroup mjserver-writer class 字节落盘
 ///
 /// ClassFileLoadHook 命中过滤后的字节去向：文件模式经
 /// `libjninfra::dump::FileClassSink` 直接写盘（输出布局由 groupBy 决定），

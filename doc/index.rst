@@ -1,14 +1,14 @@
-.. _jdumper-docs:
+.. _mjdump-docs:
 
-jdumper 设计规格
+mjdump 设计规格
 ================
 
-.. _jdumper-doc-map:
+.. _mjdump-doc-map:
 
 文档地图与分层规则
 ------------------
 
-jdumper 是 JVM 运行时字节码 dump 工具（JVMTI 三模式）。本目录是跨模块设计、
+mjdump 是 JVM 运行时字节码 dump 工具（JVMTI 三模式）。本目录是跨模块设计、
 数据流、命令面契约与技术背景的权威文本；微观契约（参数、返回值、失败模式、
 不变量）在代码 ``///`` 注释里（Doxygen 层），本目录只管「为什么这样设计」与
 「契约是什么」。

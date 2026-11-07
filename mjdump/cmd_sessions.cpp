@@ -34,8 +34,8 @@ struct SessionRecord
 void print_usage()
 {
     std::fprintf(stderr,
-                 "Usage: jdumper sessions [--json] [--active]\n"
-                 "       jdumper sessions --registry\n\n"
+                 "Usage: mjdump sessions [--json] [--active]\n"
+                 "       mjdump sessions --registry\n\n"
                  "Lists dump/inspect sessions recorded by this user without starting a daemon.\n");
 }
 
@@ -183,7 +183,7 @@ void refresh_from_metadata(SessionRecord& record)
 
 std::vector<SessionRecord> read_sessions()
 {
-    std::ifstream              in(jdumper::session_registry_path(), std::ios::binary);
+    std::ifstream              in(mjdump::session_registry_path(), std::ios::binary);
     std::vector<SessionRecord> records;
     if (!in) {
         return records;
@@ -244,7 +244,7 @@ void print_json(const std::vector<SessionRecord>& records, bool active_only)
 {
     std::cout << "{\n";
     std::cout << "  \"registry\": ";
-    write_json_string(std::cout, jdumper::session_registry_path().string());
+    write_json_string(std::cout, mjdump::session_registry_path().string());
     std::cout << ",\n";
     std::cout << "  \"sessions\": [\n";
     bool first = true;
@@ -284,7 +284,7 @@ int cmd_sessions(int argc, char* argv[])
         return 0;
     }
     if (has_flag(argc, argv, "--registry")) {
-        std::printf("%s\n", jdumper::session_registry_path().string().c_str());
+        std::printf("%s\n", mjdump::session_registry_path().string().c_str());
         return 0;
     }
 

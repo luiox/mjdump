@@ -1,4 +1,4 @@
-/// @defgroup jdserver-arg-hider Agent 参数隐藏（P0.5）
+/// @defgroup mjserver-arg-hider Agent 参数隐藏（P0.5）
 ///
 /// P0.5 通过 JVMTI class retransformation 隐藏 Java 可见的 agent 启动参数。
 ///
@@ -9,11 +9,11 @@
 /// 适用边界与风险见 doc:techniques-native-hook），故改用 JVMTI class
 /// retransformation：
 ///
-/// 1. `jdserver` 启用 `can_retransform_classes` 和
+/// 1. `mjserver` 启用 `can_retransform_classes` 和
 ///    `can_retransform_any_class`
 /// 2. `VMInit` 仅在 management 实现已加载时 retransform；不强制早期 bootstrap 加载
 /// 3. `ClassFileLoadHook` 检测到目标 class 时，patch 其 Java `getVmArguments()` wrapper
-/// 4. Patched wrapper 去掉类似 jdserver 自己 `-agentpath`/`-agentlib` 的启动参数
+/// 4. Patched wrapper 去掉类似 mjserver 自己 `-agentpath`/`-agentlib` 的启动参数
 ///
 /// 这保持在正常 JVMTI 转换规则内，避免在 `jvm.dll` 中 patch 可执行页。
 /// 纯 Java 层（Instrumentation transformer）的等价方案对照见
@@ -21,7 +21,7 @@
 ///
 /// ## MVP 边界
 ///
-/// 只移除包含 agent 启动前缀且含 `jdserver` 的参数。
+/// 只移除包含 agent 启动前缀且含 `mjserver` 的参数。
 /// VM options（`-Xmx`、`--add-opens`、`-D` 属性）保持可见。
 /// 行为由 `hideAgentArgs` 控制，默认为 `true`。
 ///
@@ -52,7 +52,7 @@
 /// @brief Patch HotSpot management bytecode so Java-side VM arguments are hidden.
 ///
 /// The P0.5 implementation targets `sun/management/VMManagementImpl` and rewrites
-/// its `getVmArguments()` Java wrapper to remove only jdserver's own
+/// its `getVmArguments()` Java wrapper to remove only mjserver's own
 /// `-agentpath` / `-agentlib` entry. This is intentionally class-file based
 /// instead of an inline native hook because modern HotSpot builds use
 /// RIP-relative instructions around `JVM_GetVmArguments`.

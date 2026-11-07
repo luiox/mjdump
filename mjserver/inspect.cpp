@@ -420,7 +420,7 @@ void inspectLoadedClasses(JNIEnv* env)
     const unsigned long                      limit   = g_config.inspectLimit;
 
     std::fputs("{\n", out);
-    std::fputs("  \"tool\": \"jdumper\",\n", out);
+    std::fputs("  \"tool\": \"mjdump\",\n", out);
     std::fprintf(out, "  \"pid\": %lu,\n", GetCurrentProcessId());
     std::fputs("  \"mode\": \"inspect\",\n", out);
     writeFilterObject(out);

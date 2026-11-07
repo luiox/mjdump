@@ -1,13 +1,13 @@
--- jdumper 构建根：三个 target
---   jdserver          JVMTI Agent DLL（P0 -agentpath / P1 远程注入共用入口）
---   jdumper           CLI（list/collect/inject/dump/inspect/classes/sessions/sweep/pack/status）
---   jdumper-unittest  arg_hider 畸形常量池容错回归（gtest，--with_tests=y 时启用）
+-- mjdump 构建根：三个 target
+--   mjserver          JVMTI Agent DLL（P0 -agentpath / P1 远程注入共用入口）
+--   mjdump           CLI（list/collect/inject/dump/inspect/classes/sessions/sweep/pack/status）
+--   mjdump-unittest  arg_hider 畸形常量池容错回归（gtest，--with_tests=y 时启用）
 --
 -- 依赖注册（家族同款口径）：工程级 add_repositories，数据克隆进本工程
 -- .xmake/<plat>/<arch>/repositories，不依赖机器全局注册状态。
 add_repositories("luiox-repo https://github.com/luiox/luiox-repo.git")
 
--- JAVA_HOME 必须先设置：jdserver/jdumper/jdumper-unittest 都要消费
+-- JAVA_HOME 必须先设置：mjserver/mjdump/mjdump-unittest 都要消费
 -- jni.h / jvmti.h（jninfra 公开头会传递包含这两个 JVM 头）。
 --
 -- 构建与验证命令见 doc:user-guide-build 与 doc:design-validation（Sphinx 站）。
@@ -43,7 +43,7 @@ add_requireconfs("**.libca", {override = true, configs = {modules = LUIOX_LIBCA_
 option("with_tests")
     set_default(false)
     set_showmenu(true)
-    set_description("build jdumper-unittest (requires gtest)")
+    set_description("build mjdump-unittest (requires gtest)")
 option_end()
 
 if has_config("with_tests") then
@@ -51,21 +51,21 @@ if has_config("with_tests") then
 end
 
 if not os.getenv("JAVA_HOME") then
-    raise("JAVA_HOME is not set. Required for jni.h/jvmti.h (jdserver / jdumper / jdumper-unittest).")
+    raise("JAVA_HOME is not set. Required for jni.h/jvmti.h (mjserver / mjdump / mjdump-unittest).")
 end
 local java_include        = path.join(os.getenv("JAVA_HOME"), "include")
 local java_include_win32  = path.join(java_include, "win32")
 local java_lib_dir        = path.join(os.getenv("JAVA_HOME"), "lib")
 
-target("jdserver")
+target("mjserver")
     set_kind("shared")
-    set_group("jdumper")
+    set_group("mjdump")
     set_languages("c++17")
     set_warnings("all")
 
     add_includedirs(java_include, java_include_win32)
     add_packages("libjninfra", "libca")
-    add_files("dserver/*.cpp")
+    add_files("mjserver/*.cpp")
 
     if is_plat("windows") then
         add_cxflags("/EHa", "/utf-8", {tools = "cl"})
@@ -76,17 +76,17 @@ target("jdserver")
     end
 target_end()
 
-target("jdumper")
+target("mjdump")
     set_kind("binary")
-    set_group("jdumper")
+    set_group("mjdump")
     set_languages("c++17")
     set_warnings("all")
 
     -- JAVA_HOME include 也要加：消费 jninfra 公开头会传递包含 jni.h/jvmti.h。
     add_includedirs(java_include, java_include_win32)
-    add_includedirs("dump")
+    add_includedirs("mjdump")
     add_packages("libjninfra", "mjbase", "libca")
-    add_files("dump/*.cpp")
+    add_files("mjdump/*.cpp")
 
     if is_plat("windows") then
         add_cxflags("/EHa", "/utf-8", {tools = "cl"})
@@ -94,18 +94,18 @@ target("jdumper")
     end
 target_end()
 
-target("jdumper-unittest")
+target("mjdump-unittest")
     set_kind("binary")
-    set_group("jdumper/test")
+    set_group("mjdump/test")
     set_default(false)
     set_languages("c++17")
     set_warnings("all")
 
     add_packages("gtest")
-    -- jvmti.h 与 dserver 同源（JAVA_HOME），无 JVM 链接依赖（仅类型）。
+    -- jvmti.h 与 mjserver 同源（JAVA_HOME），无 JVM 链接依赖（仅类型）。
     add_includedirs(java_include, java_include_win32)
-    add_includedirs("dserver")
-    add_files("dserver/arg_hider.cpp")
+    add_includedirs("mjserver")
+    add_files("mjserver/arg_hider.cpp")
     add_files("unittest/arg_hider_test.cpp")
 
     if is_plat("windows") then

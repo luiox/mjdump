@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace jdumper {
+namespace mjdump {
 
 /// @brief Shared command-line options for commands that target a JVM process.
 ///
@@ -66,7 +66,7 @@ std::string windows_error_message(DWORD error);
 /// @brief Print a Windows API failure with GetLastError detail.
 void print_last_error(const char* operation);
 
-/// @brief Resolve a path beside the running `jdumper.exe`.
+/// @brief Resolve a path beside the running `mjdump.exe`.
 std::wstring path_next_to_exe(const wchar_t* file_name);
 
 /// @brief Try to enable SeDebugPrivilege for remote-process operations.
@@ -81,4 +81,4 @@ void enable_debug_privilege();
 /// builds x64 by default, so this catches accidental injection into 32-bit JVMs.
 bool process_bitness_matches(HANDLE process);
 
-}   // namespace jdumper
+}   // namespace mjdump

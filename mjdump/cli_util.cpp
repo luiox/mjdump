@@ -10,7 +10,7 @@
 #include <vector>
 #include "libca/log/log_macros.hpp"
 
-namespace jdumper {
+namespace mjdump {
 namespace {
 
 bool parse_dword(const char* text, DWORD& value)
@@ -299,4 +299,4 @@ bool process_bitness_matches(HANDLE process)
     return current_wow64 == target_wow64;
 }
 
-}   // namespace jdumper
+}   // namespace mjdump

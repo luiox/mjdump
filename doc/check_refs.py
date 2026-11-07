@@ -24,7 +24,7 @@ from pathlib import Path
 
 # 代码面：源码、测试、构建脚本。人读文档（README/roadmap）不在此列，
 # 它们引用 .md 是允许的。
-CODE_ROOTS = ("dump", "dserver", "unittest", "xmake.lua")
+CODE_ROOTS = ("mjdump", "mjserver", "unittest", "xmake.lua")
 CODE_SUFFIXES = {".hpp", ".cpp", ".h", ".c", ".lua", ".sh", ".py"}
 
 # 流程文档：仓库级、稳定、允许被代码注释点名，但只校验存在性。
@@ -36,7 +36,7 @@ UPSTREAM_MARKERS = ("libjninfra", "mjbase", "libca", "luiox", "私有仓", "私�
 DOC_DIRNAME = "doc"
 LABEL_DEF = re.compile(r"^\.\. _([\w.-]+):\s*$")
 LABEL_REF = re.compile(r"doc:([a-z][a-z0-9]*(?:-[a-z0-9]+)*)")
-RST_PATH = re.compile(r"(?:jdumper/)?doc/[\w./-]+\.rst")
+RST_PATH = re.compile(r"(?:mjdump/)?doc/[\w./-]+\.rst")
 MD_MENTION = re.compile(r"[\w./-]*[\w-]\.md\b")
 REF_ROLE = re.compile(r":ref:`([^>`]+)`")
 DOC_ROLE = re.compile(r":doc:`([^>`]+)`")
@@ -126,7 +126,7 @@ def check(root: Path):
     labels, rst_files, dup = collect_labels(doc_dir)
     problems += dup
     in_tree = toctree_entries(doc_dir / "index.rst")
-    groups, headers = micro_targets([root / "dump", root / "dserver", root / "unittest"])
+    groups, headers = micro_targets([root / "mjdump", root / "mjserver", root / "unittest"])
 
     # RST 侧：文档内链必须指向在册文件/已声明 label，匿名 md/rst 链接一律禁止。
     for p in sorted(doc_dir.rglob("*.rst")):
@@ -173,7 +173,7 @@ def check(root: Path):
                 if m.group(1) not in labels:
                     problems.append(f"{rel}:{lineno}: doc:{m.group(1)} 无对应 label 声明")
             for m in RST_PATH.finditer(line):
-                rel_path = m.group(0).replace("jdumper/", "", 1)
+                rel_path = m.group(0).replace("mjdump/", "", 1)
                 if not (root / rel_path).exists():
                     problems.append(f"{rel}:{lineno}: 文档路径不存在 {m.group(0)}")
             for m in MD_MENTION.finditer(line):

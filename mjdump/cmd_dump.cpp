@@ -29,7 +29,7 @@
 #include <vector>
 #include "libca/log/log_macros.hpp"
 
-using namespace jdumper;
+using namespace mjdump;
 namespace dump    = jninfra::dump;
 namespace hotspot = jninfra::hotspot;
 
@@ -38,16 +38,16 @@ namespace {
 void print_usage()
 {
     std::fprintf(stderr,
-                 "Usage: jdumper dump -p <pid> [-o <dir>] [filters]\n"
+                 "Usage: mjdump dump -p <pid> [-o <dir>] [filters]\n"
                  "                    [--module <name>] [--loader <name>]\n"
                  "                    [--wait-ms <ms>] [--cache-bait]\n"
                  "                    [--group-by none|package|module]\n"
                  "                    [--quiet] [--diagnostic]\n"
-                 "       jdumper dump -p <pid> --preflight [filters] [--freeze-ms <ms>]\n"
+                 "       mjdump dump -p <pid> --preflight [filters] [--freeze-ms <ms>]\n"
                  "                    [--layout-type <HotSpotType>]\n\n"
                  "                    [--layout-find <substring>]\n\n"
-                 "       jdumper dump -p <pid> --external [-o <dir>] [filters] [--cache-bait]\n\n"
-                 "Default mode performs a practical dump by injecting jdserver.dll.\n"
+                 "       mjdump dump -p <pid> --external [-o <dir>] [filters] [--cache-bait]\n\n"
+                 "Default mode performs a practical dump by injecting mjserver.dll.\n"
                  "`--preflight` keeps the pure external-read P2 readiness check.\n"
                  "`--external` attempts gated P2 class-byte copying when the JVM exposes it.\n");
 }
@@ -240,7 +240,7 @@ std::string iso_timestamp_label()
 std::filesystem::path default_dump_dir(DWORD pid)
 {
     return std::filesystem::current_path() /
-           ("jdumper-" + std::to_string(pid) + "-" + timestamp_label());
+           ("mjdump-" + std::to_string(pid) + "-" + timestamp_label());
 }
 
 std::filesystem::path parse_output_dir_or_default(int argc, char* argv[], DWORD pid)
@@ -520,7 +520,7 @@ DumpIndexResult write_dump_index(const std::filesystem::path& output_dir)
     const bool validation_ok = result.invalid_magic_count == 0 && result.unsafe_path_count == 0 &&
                                result.unreadable_count == 0;
     out << "{\n";
-    out << "  \"tool\": \"jdumper\",\n";
+    out << "  \"tool\": \"mjdump\",\n";
     out << "  \"schemaVersion\": 2,\n";
     out << "  \"sourcePath\": \"" << json_escape(output_dir.string()) << "\",\n";
     out << "  \"filterHits\": " << filter_hits << ",\n";
@@ -930,10 +930,10 @@ bool write_external_dump_meta(const ExternalDumpMetaContext& context, const char
     const std::string error_code = external_error_code(last_error);
 
     out << "{\n";
-    out << "  \"tool\": \"jdumper\",\n";
+    out << "  \"tool\": \"mjdump\",\n";
     out << "  \"pid\": " << context.pid << ",\n";
     out << "  \"mode\": \"external\",\n";
-    out << "  \"agentVersion\": \"jdumper-external-p2-v1\",\n";
+    out << "  \"agentVersion\": \"mjdump-external-p2-v1\",\n";
     out << "  \"status\": ";
     write_json_string(out, status);
     out << ",\n";
@@ -1129,7 +1129,7 @@ bool verify_hotspot_target(DWORD pid, bool print_success)
     }
 
     if (!process_bitness_matches(process)) {
-        CA_LOG_ERROR("Target process bitness does not match this jdumper build.");
+        CA_LOG_ERROR("Target process bitness does not match this mjdump build.");
         CloseHandle(process);
         return false;
     }
@@ -1183,7 +1183,7 @@ std::string practical_target_error_code(DWORD pid, std::string& detail)
     }
 
     if (!process_bitness_matches(process)) {
-        detail = "target process bitness does not match this jdumper build";
+        detail = "target process bitness does not match this mjdump build";
         CloseHandle(process);
         return "bitness_mismatch";
     }
@@ -1226,10 +1226,10 @@ bool write_practical_failure_meta(DWORD pid, const std::filesystem::path& output
     }
 
     out << "{\n";
-    out << "  \"tool\": \"jdumper\",\n";
+    out << "  \"tool\": \"mjdump\",\n";
     out << "  \"pid\": " << pid << ",\n";
     out << "  \"mode\": \"dump\",\n";
-    out << "  \"agentVersion\": \"jdumper-cli-p1-v1\",\n";
+    out << "  \"agentVersion\": \"mjdump-cli-p1-v1\",\n";
     out << "  \"status\": \"failed\",\n";
     out << "  \"startedAt\": ";
     write_json_string(out, iso_timestamp_label());
@@ -1289,7 +1289,7 @@ bool write_practical_cli_error(DWORD pid, const std::filesystem::path& output_di
         return false;
     }
     out << "{\n";
-    out << "  \"tool\": \"jdumper\",\n";
+    out << "  \"tool\": \"mjdump\",\n";
     out << "  \"schemaVersion\": 1,\n";
     out << "  \"pid\": " << pid << ",\n";
     out << "  \"status\": \"failed\",\n";
@@ -2377,7 +2377,7 @@ bool prepare_external_cache_bait(int argc, char* argv[], ExternalDumpMetaContext
     options.ignore_cli_output_dir = true;
     options.force_cache_bait      = true;
 
-    std::printf("[dump] preparing external cache with jdserver under %s\n",
+    std::printf("[dump] preparing external cache with mjserver under %s\n",
                 bait_dir.string().c_str());
     const int inject_result = run_injection(argc, argv, options);
     if (inject_result != 0) {
@@ -2452,7 +2452,7 @@ bool write_external_inspect_json(const std::filesystem::path& output_dir, DWORD 
     const std::string error_code        = external_error_code(last_error);
 
     out << "{\n";
-    out << "  \"tool\": \"jdumper\",\n";
+    out << "  \"tool\": \"mjdump\",\n";
     out << "  \"pid\": " << pid << ",\n";
     out << "  \"mode\": \"inspect\",\n";
     out << "  \"source\": \"external\",\n";
@@ -2860,7 +2860,7 @@ int run_practical_dump(int argc, char* argv[], DWORD pid)
                                      module_filter,
                                      loader_filter,
                                      "inject_failed",
-                                     "jdserver injection failed");
+                                     "mjserver injection failed");
         return inject_result;
     }
 

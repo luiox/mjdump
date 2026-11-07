@@ -16,7 +16,7 @@ namespace {
 void print_usage()
 {
     std::fprintf(stderr,
-                 "Usage: jdumper sweep -o <session-dir> [filters] [--wait-ms <ms>]\n\n"
+                 "Usage: mjdump sweep -o <session-dir> [filters] [--wait-ms <ms>]\n\n"
                  "Reads <session-dir>/_meta.json, reuses its pid/output directory, and runs a "
                  "second dump sweep. If no new filters are supplied, filters are restored from "
                  "metadata.\n");
@@ -208,14 +208,14 @@ int cmd_sweep(int argc, char* argv[])
 
     const std::string meta = read_text_file(session_dir / "_meta.json");
     if (meta.empty()) {
-        CA_LOG_ERROR("jdumper sweep: session metadata not found: {}",
+        CA_LOG_ERROR("mjdump sweep: session metadata not found: {}",
                     (session_dir / "_meta.json").string().c_str());
         return 1;
     }
 
     const auto pid = find_json_uint(meta, "pid");
     if (pid == 0 || pid > 0xffffffffULL) {
-        CA_LOG_WARN("jdumper sweep: metadata does not contain a valid pid");
+        CA_LOG_WARN("mjdump sweep: metadata does not contain a valid pid");
         return 1;
     }
 

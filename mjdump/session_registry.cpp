@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 
-namespace jdumper {
+namespace mjdump {
 namespace {
 
 std::string iso_timestamp_label()
@@ -28,7 +28,7 @@ std::filesystem::path local_state_root()
     size_t local_size     = 0;
     if (_dupenv_s(&local_app_data, &local_size, "LOCALAPPDATA") == 0 && local_app_data != nullptr &&
         local_app_data[0] != '\0') {
-        std::filesystem::path path = std::filesystem::path(local_app_data) / "jdumper";
+        std::filesystem::path path = std::filesystem::path(local_app_data) / "mjdump";
         std::free(local_app_data);
         return path;
     }
@@ -39,14 +39,14 @@ std::filesystem::path local_state_root()
     char*  temp      = nullptr;
     size_t temp_size = 0;
     if (_dupenv_s(&temp, &temp_size, "TEMP") == 0 && temp != nullptr && temp[0] != '\0') {
-        std::filesystem::path path = std::filesystem::path(temp) / "jdumper";
+        std::filesystem::path path = std::filesystem::path(temp) / "mjdump";
         std::free(temp);
         return path;
     }
     if (temp != nullptr) {
         std::free(temp);
     }
-    return std::filesystem::current_path() / ".jdumper";
+    return std::filesystem::current_path() / ".mjdump";
 }
 
 void write_json_string(std::ostream& out, const std::string& text)
@@ -92,7 +92,7 @@ void record_session(unsigned long pid, const std::filesystem::path& output_dir, 
     if (!out) {
         return;
     }
-    out << "{\"tool\":\"jdumper\",\"schemaVersion\":1,\"pid\":" << pid << ",\"mode\":";
+    out << "{\"tool\":\"mjdump\",\"schemaVersion\":1,\"pid\":" << pid << ",\"mode\":";
     write_json_string(out, mode == nullptr ? "" : mode);
     out << ",\"outputDir\":";
     write_json_string(out, absolute_path_text(output_dir));
@@ -101,4 +101,4 @@ void record_session(unsigned long pid, const std::filesystem::path& output_dir, 
     out << "}\n";
 }
 
-}   // namespace jdumper
+}   // namespace mjdump

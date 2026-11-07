@@ -1,13 +1,13 @@
-"""Sphinx 配置：jdumper 设计规格层（宏观）。
+"""Sphinx 配置：mjdump 设计规格层（宏观）。
 
 分层规则见 doc/index.rst 序言：本目录只收 RST 设计规格；markdown 属人读/
 产品方向层（README / roadmap），不进 doctree。CI 以 -W --keep-going 构建，
 警告即失败。
 """
 
-project = "jdumper"
-author = "jdumper maintainers"
-copyright = "2026, jdumper maintainers"
+project = "mjdump"
+author = "mjdump maintainers"
+copyright = "2026, mjdump maintainers"
 
 # 中文正文：docutils 会把全角字形算进表格边框宽度，因此本仓禁用 grid table，
 # 表格一律用 list-table（无对齐不变量）。
@@ -25,7 +25,7 @@ nitpick_ignore = [
 ]
 
 html_theme = "alabaster"
-html_title = "jdumper 设计规格"
+html_title = "mjdump 设计规格"
 html_baseurl = ""
 html_search_language = "zh"  # 需 jieba；未装分词器时仅影响站内搜索，不影响门禁
 html_use_opensearch = ""

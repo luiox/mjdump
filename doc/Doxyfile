@@ -10,12 +10,12 @@
 # WARN_IF_UNDOCUMENTED=NO）——门禁挡的是写错的文档（坏 @ref、坏命令、
 # 参数名对不上），不是没写的文档。
 
-PROJECT_NAME           = "jdumper"
+PROJECT_NAME           = "mjdump"
 PROJECT_BRIEF          = "JVM 运行时字节码 dump 工具（JVMTI 三模式）"
 OUTPUT_DIRECTORY       = doc/_apidoc
 QUIET                  = YES   # 只留告警：门禁的日志就是告警清单
 
-INPUT                  = dump dserver unittest
+INPUT                  = mjdump mjserver unittest
 FILE_PATTERNS          = *.hpp
 RECURSIVE              = YES
 EXCLUDE_PATTERNS       = */_build/* */_apidoc/*

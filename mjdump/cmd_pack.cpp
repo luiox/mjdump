@@ -30,9 +30,9 @@ using ClassSet = std::map<std::string, std::vector<ca::u8>>;
 void print_usage()
 {
     std::fprintf(stderr,
-                 "Usage: jdumper pack -i <dump-dir> -o <out.jar>\n"
-                 "       jdumper pack <dump-dir> <out.jar>\n"
-                 "       jdumper pack ... [--no-verify]\n");
+                 "Usage: mjdump pack -i <dump-dir> -o <out.jar>\n"
+                 "       mjdump pack <dump-dir> <out.jar>\n"
+                 "       mjdump pack ... [--no-verify]\n");
 }
 
 bool is_class_file(const std::string& path)
@@ -128,7 +128,7 @@ bool import_dump_dir(const PackOptions& options, ClassSet& classes, std::string&
         auto                uri = relative_uri(root, std::filesystem::path(file));
         if (!classes.emplace(uri, std::move(content)).second) {
             CA_LOG_WARN(
-                "jdumper pack: duplicate entry '{}' (kept first occurrence, aligned with JVM first-wins class loading)",
+                "mjdump pack: duplicate entry '{}' (kept first occurrence, aligned with JVM first-wins class loading)",
                 uri.c_str());
         }
     }
@@ -180,7 +180,7 @@ int cmd_pack(int argc, char* argv[])
     ClassSet    classes;
     std::string error;
     if (!import_dump_dir(options, classes, error)) {
-        CA_LOG_WARN("jdumper pack: {}", error.c_str());
+        CA_LOG_WARN("mjdump pack: {}", error.c_str());
         return 1;
     }
 
@@ -200,19 +200,19 @@ int cmd_pack(int argc, char* argv[])
         }
     });
     if (write_result.is_err()) {
-        CA_LOG_ERROR("jdumper pack: failed to write jar: {}", options.output_jar.c_str());
+        CA_LOG_ERROR("mjdump pack: failed to write jar: {}", options.output_jar.c_str());
         return 1;
     }
 
     if (options.verify) {
         std::size_t actual_classes = 0;
         if (!count_jar_classes(options.output_jar, actual_classes, error)) {
-            CA_LOG_ERROR("jdumper pack: {}", error.c_str());
+            CA_LOG_ERROR("mjdump pack: {}", error.c_str());
             return 1;
         }
         const auto expected_classes = classes.size();
         if (actual_classes != expected_classes) {
-            CA_LOG_WARN("jdumper pack: jar readback count mismatch: wrote {} read {}",
+            CA_LOG_WARN("mjdump pack: jar readback count mismatch: wrote {} read {}",
                         expected_classes, actual_classes);
             return 1;
         }

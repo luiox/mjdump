@@ -35,7 +35,7 @@ std::string tempAgentPath(const char* suffix)
     if (!path.empty() && path.back() != '\\' && path.back() != '/') {
         path += '\\';
     }
-    path += "jdumper-";
+    path += "mjdump-";
     path += std::to_string(GetCurrentProcessId());
     path += suffix == nullptr ? "" : suffix;
     return path;
@@ -232,7 +232,7 @@ DWORD WINAPI injectedControlMain(LPVOID param)
 
 }   // namespace
 
-extern "C" __declspec(dllexport) DWORD WINAPI JdserverRunInjected(LPVOID param)
+extern "C" __declspec(dllexport) DWORD WINAPI MjserverRunInjected(LPVOID param)
 {
     auto* options = new (std::nothrow)
         std::string(param == nullptr ? "" : reinterpret_cast<const char*>(param));

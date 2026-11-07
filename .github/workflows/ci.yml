@@ -1,7 +1,7 @@
-# jdumper CI（文档门禁 + Windows build & test）
+# mjdump CI（文档门禁 + Windows build & test）
 #
 # 范围：docs（引用门禁 + Sphinx -W + Doxygen WARN_AS_ERROR）+ Windows 下
-# jdserver/jdumper/jdumper-unittest 构建与单测。
+# mjserver/mjdump/mjdump-unittest 构建与单测。
 # 依赖：libjninfra/libca/mjbase 均经 luiox-repo git 直连包拉取（xmake.lua
 # 工程级 add_repositories 注册；CI 的 repo --add 步骤落地本地数据克隆，
 # 与家族 onboarding 口径一致）；gtest 走 xrepo。JAVA_HOME 由 setup-java 提供。
@@ -31,7 +31,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-          # setup-java 导出 JAVA_HOME，jdserver/jdumper/jdumper-unittest 的
+          # setup-java 导出 JAVA_HOME，mjserver/mjdump/mjdump-unittest 的
           # jni.h/jvmti.h 都从这里取。
 
       - name: Setup xmake
@@ -45,9 +45,9 @@ jobs:
         with:
           path: |
             ~/AppData/Local/.xmake/packages
-          key: jdumper-xrepo-windows-x64-xmake309-${{ hashFiles('xmake.lua') }}
+          key: mjdump-xrepo-windows-x64-xmake309-${{ hashFiles('xmake.lua') }}
           restore-keys: |
-            jdumper-xrepo-windows-x64-xmake309-
+            mjdump-xrepo-windows-x64-xmake309-
 
       - name: Register luiox-repo
         shell: bash
@@ -60,13 +60,13 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          xmake build jdserver
-          xmake build jdumper
-          xmake build jdumper-unittest
+          xmake build mjserver
+          xmake build mjdump
+          xmake build mjdump-unittest
 
       - name: Run unit tests
         shell: bash
-        run: xmake run jdumper-unittest
+        run: xmake run mjdump-unittest
 
   docs:
     name: docs (引用门禁 + Sphinx + Doxygen)
@@ -93,7 +93,7 @@ jobs:
       - name: Upload site
         uses: actions/upload-artifact@v4
         with:
-          name: jdumper-doc-html
+          name: mjdump-doc-html
           path: doc/_build
           retention-days: 14
 
@@ -117,6 +117,6 @@ jobs:
       - name: Upload API site
         uses: actions/upload-artifact@v4
         with:
-          name: jdumper-doc-apidoc
+          name: mjdump-doc-apidoc
           path: doc/_apidoc/html
           retention-days: 14

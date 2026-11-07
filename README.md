@@ -1,19 +1,19 @@
-# jdumper — JVM 运行时字节码 Dumper
+# mjdump — JVM 运行时字节码 Dumper
 
 > 三模式 JVM 字节码运行时导出工具，支持 **JVMTI Agent**（P0）、**远程注入**（P1）、**冻结外部读取**（P2）三种方案。
 
 ## 架构
 
 ```
-jdumper.exe (CLI)
+mjdump.exe (CLI)
 ├── collect   ← 遗留 pipe 接收器（agent 侧无生产者，见下）
-├── inject    ← 远程注入 jdserver.dll（P1）
+├── inject    ← 远程注入 mjserver.dll（P1）
 ├── inspect   ← dump 前预览 loaded classes 和过滤命中
 ├── dump      ← 默认注入 agent 执行真实 dump；--preflight 保留 P2 预检
 ├── pack      ← 将 dump 目录打包成可被其它工具消费的 JAR
 └── status    ← 打印 dump session 元数据
 
-jdserver.dll (Agent DLL)
+mjserver.dll (Agent DLL)
 ├── Agent_OnLoad → JVMTI ClassFileLoadHook（直写文件，无 pipe 通道）
 ├── VMInit       → 已加载类 RetransformClasses 兜底
 └── DllMain      → 注入模式入口（P1）
@@ -29,20 +29,20 @@ jdserver.dll (Agent DLL)
 
 ```bash
 # P0：-agentpath 启动
-java -agentpath:build\windows\x64\release\jdserver.dll -jar app.jar
+java -agentpath:build\windows\x64\release\mjserver.dll -jar app.jar
 
 # P1：远程注入
-jdumper inject -p <pid>
+mjdump inject -p <pid>
 
 # dump 前预览
-jdumper inspect -p <pid> --package com.example --limit 100
+mjdump inspect -p <pid> --package com.example --limit 100
 
 # P1：默认 dump
-jdumper dump -p <pid> -o C:\Dump --package com.example
+mjdump dump -p <pid> -o C:\Dump --package com.example
 
 # 离线分析：dump 目录保持 class 文件树布局，可被任意 class 文件工具直接读取；
 # 需要只接受 JAR 的工具时先打包
-jdumper pack -i C:\Dump -o C:\Dump\dumped.jar
+mjdump pack -i C:\Dump -o C:\Dump\dumped.jar
 ```
 
 ## 构建
@@ -51,8 +51,8 @@ jdumper pack -i C:\Dump -o C:\Dump\dumped.jar
 set JAVA_HOME=D:\sdk\java\jdk17
 xmake repo --add luiox-repo https://github.com/luiox/luiox-repo.git
 xmake f -m release --with_tests=y -y
-xmake build jdserver
-xmake build jdumper
+xmake build mjserver
+xmake build mjdump
 ```
 
 依赖注册、JAVA_HOME 要求与包说明见 `xmake.lua` 头注释；详细用法见 `doc/user_guide.rst`。

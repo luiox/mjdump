@@ -1,7 +1,7 @@
-/// @defgroup jdumper-inject 远程注入工作流（P1）
+/// @defgroup mjdump-inject 远程注入工作流（P1）
 ///
 /// `inject` 与默认 `dump`/`inspect` 模式共用的注入内核：校验目标为同位数
-/// HotSpot → CreateRemoteThread + LoadLibraryW 装载 jdserver.dll → 定位已加载
+/// HotSpot → CreateRemoteThread + LoadLibraryW 装载 mjserver.dll → 定位已加载
 /// 模块 → 把选项串写入远程内存并调用控制入口。选项不经临时文件传递的低残留
 /// 设计与失败错误码见 doc:cli-mode1。
 
@@ -9,12 +9,12 @@
 
 #include <filesystem>
 
-namespace jdumper {
+namespace mjdump {
 
 /// @brief Options for the shared DLL injection workflow.
 ///
-/// `jdumper inject` and the practical `jdumper dump` mode both load
-/// `jdserver.dll` into a target JVM. The caller can set an agent mode label,
+/// `mjdump inject` and the practical `mjdump dump` mode both load
+/// `mjserver.dll` into a target JVM. The caller can set an agent mode label,
 /// provide a default output directory, and receive the final output directory
 /// selected from CLI `-o` or that default.
 struct InjectionOptions
@@ -36,4 +36,4 @@ struct InjectionOptions
 /// @return Process exit code compatible with `main`.
 int run_injection(int argc, char* argv[], const InjectionOptions& options);
 
-}   // namespace jdumper
+}   // namespace mjdump
