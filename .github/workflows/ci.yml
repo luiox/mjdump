@@ -2,9 +2,9 @@
 #
 # 范围：docs（引用门禁 + Sphinx -W + Doxygen WARN_AS_ERROR）+ Windows 下
 # jdserver/jdumper/jdumper-unittest 构建与单测。
-# 依赖：libca/mjbase 经 luiox-repo git 直连包拉取，libjninfra 走项目内联包
-# 定义（xmake.lua 不声明 add_repositories，由 CI/消费方显式注册，见
-# xmake.lua 头注释）；gtest 走 xrepo。JAVA_HOME 由 setup-java 提供。
+# 依赖：libjninfra/libca/mjbase 均经 luiox-repo git 直连包拉取（xmake.lua
+# 工程级 add_repositories 注册；CI 的 repo --add 步骤落地本地数据克隆，
+# 与家族 onboarding 口径一致）；gtest 走 xrepo。JAVA_HOME 由 setup-java 提供。
 
 name: CI
 
