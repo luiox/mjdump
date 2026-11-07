@@ -168,10 +168,19 @@ libjninfra 文件 sink。
 
 .. _cli-live-smoke:
 
-7. live 验证边界
-----------------
+7. live 验证（tools/ smoke 套件）
+----------------------------------------
 
-本仓不附带依赖宿主目录布局的 live smoke 脚本：涉及真实 JVM 的行为验证需要
-JDK 8/17/21 环境，按 :ref:`design-mvp-scenarios` 的场景清单逐项人工执行或
-由消费方脚本驱动。失败桶的稳定性（:ref:`design-failure-buckets`）是这些
-脚本可以依赖的产品契约。
+本仓在 ``tools/`` 附带 live smoke 套件：六个场景脚本加一个套件入口 ``validate_mvp.ps1``，收编自 morpher mjt-dump 线的同名脚本，迁入时已改造为不依赖宿主目录布局。
+
+产物目录可配置：各脚本从 ``-ArtifactDir`` 参数或 ``MJDUMP_SMOKE_ARTIFACT_DIR`` 环境变量取构建产物位置，缺省指向本仓 xmake 布局 ``build\windows\x64\<Mode>`` 下的 ``mjdump.exe`` 与 ``mjserver.dll``。
+
+JDK 环境沿用各脚本原有的 ``-Java*Home`` 参数（缺省指向用户目录下的 corretto 安装位），真实应用与 P2 外部读取场景需要 JDK 8/17/21。
+
+跨工具下游检查（``mjt strings/disasm/info`` 直接吃 dump 目录与 pack 产物）默认跳过，需要时通过 ``-MjtTool`` 参数或 ``MJDUMP_SMOKE_MJT_TOOL`` 环境变量提供 ``mjt.exe``。
+
+套件入口 ``powershell -ExecutionPolicy Bypass -File tools\validate_mvp.ps1`` 依次完成 xmake 构建、``mjdump-unittest``、CLI help smoke 与六个脚本的全量执行，``-SkipUnit`` / ``-SkipCliSmoke`` / ``-ContinueOnError`` 控制跳过项与失败容错。
+
+运行期 scratch 输出固定写在 ``build\smoke\<脚本名>\<时间戳>`` 目录（已被 .gitignore 覆盖），脚本本身不依赖任何仓外路径。
+
+失败桶的稳定性（:ref:`design-failure-buckets`）是这些脚本依赖的产品契约，覆盖的场景清单对应 :ref:`design-mvp-scenarios`。

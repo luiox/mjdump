@@ -191,9 +191,7 @@ P2 与注入路径不允许猜测或静默成功。已知失败桶：
    xmake build mjdump
    xmake run mjdump-unittest
 
-涉及真实 JVM 的 live 行为（P0/P1 dump、参数隐藏、P2 兼容性矩阵）需要真实
-JDK 8/17/21 环境逐项验证；本仓不附带依赖宿主目录结构的 live smoke 脚本，
-对应行为契约以本文与 :ref:`user-guide` 为准。
+涉及真实 JVM 的 live 行为（P0/P1 dump、参数隐藏、P2 兼容性矩阵）由 ``tools/`` 的 live smoke 套件在真实 JDK 8/17/21 环境逐项验证（用法见 :ref:`cli-live-smoke`），行为契约以本文与 :ref:`user-guide` 为准。
 
 .. _design-mvp-scope:
 
