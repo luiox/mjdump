@@ -3,8 +3,8 @@
 --   jdumper           CLI（list/collect/inject/dump/inspect/classes/sessions/sweep/pack/status）
 --   jdumper-unittest  arg_hider 畸形常量池容错回归（gtest，--with_tests=y 时启用）
 --
--- 依赖注册（mjbase/morpher 同款口径：工程级 add_repositories，数据克隆进
--- 本工程 .xmake/<plat>/<arch>/repositories，不依赖机器全局注册状态）。
+-- 依赖注册（家族同款口径）：工程级 add_repositories，数据克隆进本工程
+-- .xmake/<plat>/<arch>/repositories，不依赖机器全局注册状态。
 add_repositories("luiox-repo https://github.com/luiox/luiox-repo.git")
 
 -- JAVA_HOME 必须先设置：jdserver/jdumper/jdumper-unittest 都要消费
@@ -14,33 +14,30 @@ add_repositories("luiox-repo https://github.com/luiox/luiox-repo.git")
 
 set_languages("c++17")
 add_rules("mode.debug", "mode.release")
--- 全线静态 CRT（mjbase 源仓 set_runtimes("MT") 硬性口径，morpher 同款）：
--- 包图与 target 必须同一 runtime，混链 LNK2038。
+-- 全线静态 CRT：mjbase 源仓 set_runtimes("MT") 硬性口径，包图与 target
+-- 必须同一 runtime，混链 LNK2038。
 set_runtimes("MT")
 
--- libca 版本/模块单源（morpher deps.lua 同款防线）：本仓直接 require 与
--- 嵌套归并共用同一字面量，避免同一依赖图出现两个 libca 实例（conflict
--- configs dependencies / 链接行多条 -libpath 均是它的症状）。
+-- libca 版本/模块单源：本仓直接 require 与嵌套归并共用同一字面量，避免
+-- 同一依赖图出现两个 libca 实例（conflict configs dependencies / 链接行
+-- 多条 -libpath 均是它的症状）。
 LUIOX_LIBCA_VERSION = "0.0.16"
 LUIOX_LIBCA_MODULES =
     "core,crypto,str,fs,env,io,json,net,http,process,opt,thread,log,zip,resources,i18n,test"
 add_requires("libjninfra 0.0.2")
 add_requires("mjbase 0.0.19")
 add_requires("libca " .. LUIOX_LIBCA_VERSION, {configs = {modules = LUIOX_LIBCA_MODULES}})
--- 嵌套边镜像钉定（morpher deps.lua 纪律）：mjbase/libjhasm 的 libjbc 边是
--- 裸下界（libjhasm 0.3.3 沙箱内联词条只到 0.4.22 所致），不镜像会与消费图
--- 的 libjbc 实例分裂。
+-- 嵌套边镜像钉定：mjbase/libjhasm 的 libjbc 边是裸下界，不镜像会与消费
+-- 图的 libjbc 实例分裂。
 add_requireconfs("mjbase.libjbc", {version = "0.4.26"})
 add_requireconfs("libjhasm.libjbc", {version = "0.4.26"})
--- mjbase 0.0.7+ 的 sqlite3 边经包 on_load package:add("deps") 声明，其
--- shared=false 在 requireconf 传导时丢失（RC 只剩 runtimes），子沙箱
--- override 后按共享库口径重新解析、与已装静态实例分裂。此处显式钉回。
+-- sqlite3 边：包面 on_load 声明的 shared=false 在 requireconf 传导时会
+-- 丢失，显式钉回静态口径。
 add_requireconfs("mjbase.sqlite3", {version = "3.53.0", configs = {shared = false}})
--- mjbase 的 libjstd/libjhasm 边在包面是裸下界（on_load add("deps")）：
--- 裸下界迫使子沙箱拉版本表（走仓库扫描），钉成精确版让已装实例直接命中。
+-- libjstd/libjhasm 边：包面是裸下界，钉成精确版让已装实例直接命中。
 add_requireconfs("mjbase.libjstd", {version = "0.0.1"})
 add_requireconfs("mjbase.libjhasm", {version = "0.3.3"})
--- 家族各包自声明的 libca 模块集归并到本仓实例（同 D33 防线）。
+-- 家族各包自声明的 libca 模块集归并到本仓实例。
 add_requireconfs("**.libca", {override = true, configs = {modules = LUIOX_LIBCA_MODULES}})
 
 option("with_tests")

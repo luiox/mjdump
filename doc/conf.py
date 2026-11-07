@@ -1,8 +1,8 @@
 """Sphinx 配置：jdumper 设计规格层（宏观）。
 
 分层规则见 doc/index.rst 序言：本目录只收 RST 设计规格；markdown 属人读/
-AI 方向层（README / roadmap / doc_ai），不进 doctree。CI 以 -W --keep-going
-构建，警告即失败。
+产品方向层（README / roadmap），不进 doctree。CI 以 -W --keep-going 构建，
+警告即失败。
 """
 
 project = "jdumper"

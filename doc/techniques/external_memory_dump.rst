@@ -180,3 +180,27 @@ class bytes。
 - 某些 JVM 实现（如 GraalVM）可能没有 SA 导出表
 - ``_cached_class_file`` 可能在 GC 时被回收
 - 外部读取得到的是字节层、结构层还是身份层，需要在输出中明确标注
+
+.. _techniques-external-memory-compat:
+
+兼容矩阵与状态字段
+------------------
+
+P2 的原则是先做显式 gate：能外部读取就写出 class bytes，不能读取就输出稳定
+``errorCode`` 与原因，而不是假装成功。当前矩阵：
+
+- **Corretto 8u352**：walk ``systemDictionary``，bytes 来自
+  ``hotspot8_hidden_cached_class_file``；``--external --cache-bait`` 可写出
+  匹配 class bytes
+- **Corretto 17.0.5**：walk ``cldg``，无 bytes 来源；显式负向 gate
+  ``errorCode=source_unavailable``
+- **Corretto 21.0.4**：同 JDK 17
+
+外部会话恒写 ``<out>/_meta.json``，兼容性关键字段：
+
+- ``p2WalkSource``：``cldg`` 或 ``systemDictionary``
+- ``p2Source``：选定的 class bytes 来源，或 ``none``
+- ``p2SourceAvailable``：是否允许字节复制
+- ``p2SourceReason``：不可用原因（人类可读）
+- ``errorCode``：稳定失败桶（``source_unavailable`` / ``no_cached_class_bytes``）
+- ``cacheBaitState``：可选 ``_bait`` 准备会话的终态

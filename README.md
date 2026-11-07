@@ -62,4 +62,4 @@ xmake build jdumper
 - `doc/index.rst`：设计规格入口（Sphinx 构建；`design.rst` / `cli.rst` / `user_guide.rst` / 技术 Wiki）
 - `doc/Doxyfile`：微观契约层（头文件 `///` 注释）
 - `doc/roadmap.md`：产品方向路线图
-- `doc_ai/capabilities.md`：已实现能力和验证成熟度
+- `doc/user_guide.rst`：能力一览、构建与验证

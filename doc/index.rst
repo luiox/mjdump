@@ -17,8 +17,8 @@ jdumper 是 JVM 运行时字节码 dump 工具（JVMTI 三模式）。本目录�
 
 - ``doc/*.rst``（本目录）：设计规格层，RST 编写，Sphinx ``-W`` 门禁。
 - 代码 ``///`` 注释：微观契约层，Doxygen ``WARN_AS_ERROR`` 门禁（``doc/Doxyfile``）。
-- markdown（``README.md`` / ``doc/roadmap.md`` / ``doc_ai/``）：人读与 AI
-  方向层，不进 doctree。
+- markdown（``README.md`` / ``doc/roadmap.md``）：人读与产品方向层，
+  不进 doctree。
 
 代码注释以 ``doc:<label>`` 形式指向本目录的具体小节；``check_refs.py`` 校验
 这些指向不会腐烂。各篇文档的标题即为该文档的根 label。

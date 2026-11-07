@@ -64,3 +64,16 @@ jdumper 解决"字节码从哪里来"的问题。它不负责反混淆，也不�
 涉及真实 JVM 的行为按 `doc/design.rst` 的 MVP 场景清单（JVM 覆盖矩阵 +
 场景覆盖）在 JDK 8/17/21 上逐项验证；构建与单测入口见 `doc/user_guide.rst`
 的构建一节。
+
+---
+
+## 6. 后续兼容性工作
+
+JDK 17+ 在拿到非 `_cached_class_file` 的稳定 class bytes 来源之前，P2 只保
+identity 遍历，字节 dump 走 P1。候选方向：
+
+- 定位版本相关的 class-file 镜像或 archived parser payload；
+- 增加受控的进程内准备步骤，暴露可读来源；
+- 维持 P2 identity-only，直到新来源被证实稳定。
+
+失败恢复体验与 daemon/IPC 型长生命周期会话尚未产品级，后续固化。

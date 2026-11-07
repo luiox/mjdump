@@ -6,6 +6,25 @@ jdumper 使用指南
 JVM 运行时字节码导出工具，支持 JVMTI Agent（P0）、远程注入（P1）、外部读取
 （P2）三种方案。命令面契约见 :ref:`cli`，总体模式表见 :ref:`design-modes`。
 
+.. _user-guide-capabilities:
+
+0. 能力一览
+-----------
+
+- **P0 JVMTI agent dump**：``-agentpath:jdserver.dll`` 启动导出全部类文件
+- **P1 远程注入**：``jdumper inject -p <pid>``，CreateRemoteThread 注入
+- **P1 dump 前预览**：``inspect`` / ``classes``，预览 loaded classes 与过滤命中
+- **P2 只读 inventory**：``inspect --external``，HotSpot Klass walk，不注入
+- **P2 外部读取预检**：``dump --preflight``，定位 jvm.dll + 探测 VMStructs
+- **P2 外部读取**：JDK 8 ``--external --cache-bait``；JDK 17/21 负向 gate
+- **输出打包与索引**：``pack`` 产出标准 JAR；``_index.json`` 记录 SHA-256
+- **分组导出**：``--group-by package|module``
+- **过滤**：include/exclude glob、正则、module/loader 精确值
+- **低残留注入**：经远程内存传 options，不落 ``.opts`` 文件
+
+已知限制（首载类 module 恒 ``unknown`` 等）见 :ref:`cli-filtering-sessions` 与
+README。构建与验证入口见下节。
+
 .. _user-guide-build:
 
 1. 构建
@@ -191,7 +210,12 @@ P2 是显式诊断路径，不是默认 dump 路径。当前 MVP 边界：
 - JDK 17 / 21：只承诺 CLDG 身份遍历和 filter 命中诊断；纯 external byte
   copy 应稳定失败为 ``errorCode: source_unavailable``\ ，真实 dump 走 P1。
 
-实测记录随兼容性验证批次持续更新（AI 方向层文档维护）。
+``--cache-bait`` 的机制：先以 agent 跑一个准备会话（产物在 ``<out>/_bait``），
+对过滤命中的类在 ``ClassFileLoadHook`` 里原样回传 class bytes，使 HotSpot
+填充隐藏的缓存态；随后外部读取会话从推断的 ``InstanceKlass`` 槽位复制。
+class bytes 逐字节复制，无字节码改写；该策略在 Corretto 8u352 上验证，
+其他 JDK 家族需单独核源门与缓存行为。跨 JVM 家族的兼容矩阵与
+``p2*`` 状态字段见 :ref:`techniques-external-memory-compat`。
 
 .. _user-guide-config:
 
